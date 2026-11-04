@@ -1,0 +1,479 @@
+================================================================================
+                    NCORE 2026 - 12HRS HACKATHON PLATFORM
+                     COMPREHENSIVE TECHNICAL & USER MANUAL
+================================================================================
+
+Document Version: 2.4.1
+Event Date: 09 October 2026
+Venue: Arunai Engineering College, Tiruvannamalai, Tamil Nadu, India
+Presented By: POINTERS (Student Association & Dept. of Computer Science and Engineering)
+Platform URL: http://localhost:3000/
+Target File: DOCUMENTATION.txt
+
+--------------------------------------------------------------------------------
+TABLE OF CONTENTS
+--------------------------------------------------------------------------------
+1. EXECUTIVE OVERVIEW & PLATFORM PURPOSE
+2. TECHNOLOGY STACK & ARCHITECTURAL FOUNDATION
+3. USER ROLES & ACCESS CONTROL ARCHITECTURE
+4. SYSTEM PAGES, PANELS & USER INTERFACES
+   4.1 Public Landing Page (/)
+   4.2 Dedicated Login Page & Modal (/login)
+   4.3 Participant Workspace & Dashboard
+   4.4 Geofenced Certificate Generation Center
+   4.5 Dedicated Hackathon Director / Admin Page (/admin)
+   4.6 Dedicated Jury Evaluation Page (/jury)
+5. CORE FUNCTIONAL OPERATIONS & WORKFLOWS
+   5.1 Team Registration & Random Passkey Generation
+   5.2 Participant Login & Secret Committee Gateway (v2.4.1 Double-Tap)
+   5.3 Multi-Round Submission Lifecycle (Round 1, 2, 3)
+   5.4 Director Command: Live Timers, Geofencing & Broadcasts
+   5.5 Jury Evaluation: Scoring Workbench & CSV Tournament Export
+   5.6 Location-Based Certificate Verification & Canvas Generation
+6. DATA DICTIONARY & PERSISTENCE (LOCALSTORAGE SCHEMA)
+7. GEOFENCING MATHEMATICS & SECURITY MODEL
+8. RUNNING & BUILDING THE APPLICATION
+
+================================================================================
+1. EXECUTIVE OVERVIEW & PLATFORM PURPOSE
+================================================================================
+NCORE 2026 12HRS HACKATHON is an enterprise-grade, real-time web application
+purpose-built to manage a prestigious national-level hackathon.
+
+The application serves three distinct user groups:
+  1. Student Innovators (Teams of up to 4 members)
+  2. Hackathon Directors & Admins (Organizers / Faculty Coordinators)
+  3. Evaluation Committee & Jury Members (Academic & Industry Experts)
+
+Primary Objectives of the Platform:
+- Provide a clean, light-themed, futuristic web interface inspired by modern
+  aerospace and engineering command centers.
+- Guarantee seamless team registration with automatic 4-member rosters and
+  cryptographic random passkey generation.
+- Eliminate all administrative / jury clutter from the public landing page,
+  keeping the focus solely on hackathon participants.
+- Provide a secret, discreet double-tap mechanism on the version tag (v2.4.1)
+  to unlock Director and Jury gateways without exposing them publicly.
+- Deliver synchronized round progression timers controlled by the Director.
+- Enable live multi-criteria jury scoring with real-time tournament re-ranking.
+- Provide on-campus location verification (restricted to Arunai Engineering
+  College campus radius) for certificate issuing without exposing technical
+  coordinates to participants.
+
+================================================================================
+2. TECHNOLOGY STACK & ARCHITECTURAL FOUNDATION
+================================================================================
+The web application is engineered with zero external server dependencies,
+providing a high-performance Single Page Application (SPA):
+
+- Core Framework: React 18.3.1 (Strict Mode & Functional Components with Hooks)
+- Build System & Bundler: Vite 6.4.3 (ESNext bundling, Sub-10s production build)
+- Styling & Layout: Tailwind CSS 3.4.17 with custom utility classes, HUD corner
+  accents, and responsive grid layouts.
+- Routing Architecture: Native HTML5 History API Routing via HackathonContext
+  (Zero react-router peer dependency conflicts, supports browser back/forward,
+  clean URLs: '/', '/login', '/admin', '/jury').
+- Iconography: Lucide React (Clean, vector iconography).
+- Audio Synthesizer: Custom Web Audio API utility (Procedural synthesized audio
+  for clicks, alerts, warps, and success chimes with global mute toggle).
+- Certificate Renderer: Pure HTML5 Canvas 2D Rendering Engine (1200x800px,
+  dual gold/cobalt borders, parchment radial shading, dynamic convener signatures,
+  and anti-forgery cryptographic hash generation).
+- Data Persistence: Browser LocalStorage with automatic hydration and real-time
+  synchronization across tabs.
+
+================================================================================
+3. USER ROLES & ACCESS CONTROL ARCHITECTURE
+================================================================================
+The application enforces three distinct authorization tiers:
+
+1. PARTICIPANT / TEAM ROLE ('team'):
+   - Can register a team with up to 4 members.
+   - Obtains an auto-generated Team ID (e.g. NCORE-T101) and random passkey
+     (e.g. NVG-9021-X).
+   - Can log in via Team ID + Passkey or Team Leader Email + Password.
+   - Accesses the Participant Dashboard: submits round deliverables, views live
+     standings, checks Director announcements, and downloads verified certificates.
+
+2. HACKATHON DIRECTOR / ADMIN ROLE ('admin'):
+   - Access Gate: Restricted passcode ('admin123' or one-click demo login).
+   - Accessed via /admin or through the secret v2.4.1 double-tap on the login panel.
+   - Has absolute authority over:
+     * Round phase transitions (Round 1, Round 2, Round 3, Standby, Active, Paused).
+     * Live Countdown Timer (Start, Pause, Reset, Custom minute duration overrides).
+     * Campus Geofence Certificate Switch (Locks or enables certificate issuance).
+     * Leaderboard Publication State (Draft mode vs. Live public rankings).
+     * Real-time Broadcast Transceiver (Sends critical alerts to participants).
+     * Roster Inspection & Schedule Milestone activation.
+
+3. JURY EVALUATION COMMITTEE ('jury'):
+   - Access Gate: Requires Jury password ('jury123', 'ncore2026', or one-click demo login).
+   - Evaluator Profiles: Mrs. V. Umadevi (HOD UG, CSE), Dr. P. Anandan (Professor,
+     CSE), Dr. S. K. Narayanan (Industry AI Architect), and Guest Evaluators.
+   - Accessed via /jury or through the secret v2.4.1 double-tap on the login panel.
+   - Has full access to:
+     * Team deliverable inspection (R1 Blueprint, R2 GitHub, R3 Demo links).
+     * Multi-round scoring inputs (Round 1 /100, Round 2 /100, Round 3 /100).
+     * Qualitative feedback textarea for written jury critique.
+     * Instant score commitment that recalculates total scores and standings.
+     * Tournament Scoreboard and CSV audit export.
+
+================================================================================
+4. SYSTEM PAGES, PANELS & USER INTERFACES
+================================================================================
+
+--------------------------------------------------------------------------------
+4.1 Public Landing Page (URL: /)
+--------------------------------------------------------------------------------
+The landing page provides an uncluttered experience for participants and sponsors:
+- Header & Navigation:
+  * Arunai Engineering College Crest & NCORE 2026 branding.
+  * Desktop Navigation links: Challenge Themes, Prizes, Schedule, Guidelines, Judges.
+  * Audio FX Toggle (Sound on/off).
+  * 'TEAM LOGIN' and 'REGISTER TEAM' action buttons.
+  * ZERO administrative or jury links visible to participants.
+- Hero Section:
+  * High-energy tagline: "THINK. BUILD. SOLVE. MAKE AN IMPACT."
+  * Live status pill indicating current event phase.
+  * Direct action buttons to Register or Enter Team Workspace.
+- Challenge Themes Section:
+  * 6 Modern Domains: AI & Machine Learning, Web3 & Blockchain, Smart Cities & IoT,
+    FinTech & CyberSec, GreenTech & Sustainability, Open Innovation.
+  * Detailed problem statement tracks, target technologies, and sample concepts.
+- Honors & Encouragement Section:
+  * Clean motivational phrases highlighting excellence, innovation, peer-reviewed
+    publication opportunities, and incubation support.
+- Event Schedule:
+  * Chronological 12-hour timeline from 08:30 AM Registration to 08:00 PM Valedictory.
+- Rules & Guidelines:
+  * Hardware/Software policies, IP ownership, code integrity, 4-member guidelines.
+- Meet The Judges & Conveners:
+  * Profile cards for department leadership and distinguished jury panel.
+- Footer:
+  * Arunai Engineering College address, POINTERS contact phones (+91 87789 70224,
+    +91 91765 90993), pointers.csedept@gmail.com, and social media handles.
+
+--------------------------------------------------------------------------------
+4.2 Dedicated Login Page & Modal (URL: /login or Navbar 'TEAM LOGIN')
+--------------------------------------------------------------------------------
+Functions both as a standalone page (/login) and as an interactive modal overlay:
+- Participant Authentication Tabs:
+  * TAB 1: Team ID & Team Passkey (with demo autofill for quick evaluation).
+  * TAB 2: Team Leader Email & Password.
+- Secret Double-Tap Target (Bottom Right):
+  * A discreet, unstyled version label: 'v2.4.1'.
+  * Double-clicking (desktop) or double-tapping (mobile/touch within 350ms) toggles
+    the secret "COMMITTEE GATEWAY".
+  * The Committee Gateway displays:
+    1. JURY EVALUATION PORTAL: Direct button to launch /jury.
+    2. DIRECTOR CONTROL CENTER: Director passcode input ('admin123') and demo login.
+    3. Return button to toggle back to standard participant login.
+
+--------------------------------------------------------------------------------
+4.3 Participant Workspace & Dashboard
+--------------------------------------------------------------------------------
+Accessible once a team logs in:
+- Top Header: Team Name, College, and Certificate Portal trigger.
+- Navigation Tabs:
+  1. PROJECT & MILESTONES:
+     - 3 Metric telemetry cards: Current Round, Time Remaining, Submission Status.
+     - Note: Timer runs ONLY when started by the Director.
+     - Milestone Submission Form: Round 1 Blueprint URL, Round 2 GitHub URL,
+       Round 3 Live Demo URL, Tech Stack, Abstract summary.
+     - Team Roster card listing all 4 members with their respective roles.
+  2. LIVE LEADERBOARD:
+     - Visible only when the Director publishes scores (otherwise shows Draft badge).
+     - Filter by domain and search by team name.
+     - Displays ranks, team scores, and submission badges.
+  3. DIRECTOR ALERTS:
+     - Broadcast stream displaying real-time announcements pushed by the Director.
+  4. ROUNDS TIMELINE:
+     - Interactive view of Round 1, Round 2, and Round 3 requirements and deliverables.
+
+--------------------------------------------------------------------------------
+4.4 Geofenced Certificate Generation Center
+--------------------------------------------------------------------------------
+Accessed from the Participant Dashboard:
+- Step 1: Physical Campus Geofence Verification:
+  * Uses the browser Geolocation API (HTML5 Navigator Geolocation).
+  * Verifies that the user's device is physically within the Arunai Engineering
+    College campus radius (2.5 km).
+  * Protects participant privacy and UI cleanliness by NOT displaying raw coordinates
+    (12.1922, 79.0833) in the user interface.
+  * Displays clear, professional status:
+    - Verifying: "Querying device GPS sensors for physical presence at Arunai Engineering College campus..."
+    - Approved: "✓ GEOFENCE VERIFIED: Physical presence confirmed on-campus at Arunai Engineering College."
+    - Rejected: "❌ ACCESS DENIED: OUTSIDE CAMPUS. Your device is detected outside Arunai Engineering College campus."
+- Step 2: Member Selection & Certificate Canvas Generation:
+  * Candidate Member dropdown allowing certificates for any registered team member.
+  * Generates high-resolution PNG certificate directly on HTML5 Canvas:
+    - Official institution headings (Arunai Engineering College, CSE Dept, POINTERS).
+    - Candidate name, college affiliation, theme, team name, and prototype title.
+    - Verified stamp with anti-tamper hash: "ON-CAMPUS ATTENDANCE VERIFIED".
+    - Signatures of Conveners (Mrs. V. Umadevi & Dr. P. Anandan).
+  * Direct PNG Download button.
+- Administrative Lock Safeguard:
+  * If the Director has locked certificate issuance in the Admin Control Center,
+    certificate generation is blocked until evaluations conclude and the switch is enabled.
+
+--------------------------------------------------------------------------------
+4.5 Dedicated Hackathon Director / Admin Page (URL: /admin)
+--------------------------------------------------------------------------------
+The command hub for event organizers:
+- Director Passcode Gate: Requires 'admin123' or one-click demo login.
+- Live Timing Telemetry Hero Bar:
+  * Active Round indicator (Round 1, Round 2, Round 3).
+  * Real-time synchronized clock (HH:MM:SS) that counts down to zero.
+  * Master Controls: [START ROUND TIMER], [PAUSE TIMER], [RESET TIMER].
+- Management Tabs:
+  1. ROUND SETTINGS:
+     - Activate Round 1, Round 2, or Round 3.
+     - Set status: Standby, Active, Paused, Completed.
+     - Instant Duration presets (30m, 1h, 2h, 3h, 4h, 12h) or Custom Minute Override.
+  2. CAMPUS CERTIFICATES:
+     - Master Geofence Issuance Switch.
+     - Enables/locks certificate generation across the entire platform.
+     - Displays target campus coordinate verification status (12.1922, 79.0833).
+  3. BROADCAST ALERTS:
+     - Transmit real-time push notices to all participants.
+     - Select alert level: INFO, WARNING, or CRITICAL.
+     - Dismiss or archive previous announcements.
+  4. REGISTERED TEAMS:
+     - Roster of all registered teams with Team IDs, Passkeys, Leader Emails,
+       Domains, Member Lists (4 members each), and submission URLs.
+  5. SCHEDULE MANAGER:
+     - Edit event milestone times with live inline time inputs and quick format helpers.
+     - Edit milestone titles and venues with instant auto-sync to the public landing page.
+     - Toggle active live schedule slot (marked as NOW HAPPENING across the platform).
+     - Add custom milestones or restore default brochure hours.
+
+--------------------------------------------------------------------------------
+4.6 Dedicated Jury Evaluation Page (URL: /jury)
+--------------------------------------------------------------------------------
+The evaluation workbench for judges:
+- Evaluator Profile Selector: Switch between Mrs. V. Umadevi, Dr. P. Anandan,
+  Dr. S. K. Narayanan, or Guest Jurors.
+- Synchronized Round Banner: Displays the round and countdown timer set by the Admin.
+- Team Evaluation Workbench:
+  * Team Search (by ID, Name, Leader, Project Title) and Domain Filter.
+  * Evaluation Status Filter (All, Evaluated, Pending).
+  * Deliverable Inspection Station: Direct clickable links to inspect Round 1
+    Blueprint, Round 2 GitHub Repository, and Round 3 Live Demo.
+  * Score Maintenance Inputs:
+    - Round 1 Architecture Score (/100)
+    - Round 2 Build & Prototype Score (/100)
+    - Round 3 Demo & Pitch Score (/100)
+    - Automatically computed Total Score (/300)
+    - Qualitative Jury Feedback & Critique textarea.
+  * [COMMIT & SAVE EVALUATION] Button: Instantly recalculates tournament standings,
+    saves evaluation timestamp and juror notes, and persists to LocalStorage.
+- Standings Scoreboard Tab:
+  * Comparative table ranking all teams by total score with medal badges.
+  * [DOWNLOAD EVALUATION CSV] Button: Exports full grading audit as an official CSV.
+
+================================================================================
+5. CORE FUNCTIONAL OPERATIONS & WORKFLOWS
+================================================================================
+
+--------------------------------------------------------------------------------
+5.1 Team Registration & Random Passkey Generation
+--------------------------------------------------------------------------------
+1. User clicks 'REGISTER TEAM' in the navbar or landing page hero.
+2. User selects Challenge Domain and enters Team Name, Leader Name, Email,
+   Phone, College, Department, and Academic Year.
+3. User adds up to 3 additional team members (Total 4 members: Leader + 3 members).
+   Each member is assigned a name and specialization role.
+4. On submit, the system:
+   - Formats a new Team ID: 'NCORE-T' + sequential index (e.g. NCORE-T105).
+   - Generates a cryptographically random passkey using the team prefix, 4-digit
+     number, and check letter (e.g. 'CYB-4812-F').
+   - Initializes R1, R2, R3 scores to 0.
+   - Displays a success dialog with the generated credentials and copy button.
+   - Persists the team into LocalStorage ('ncore_teams').
+
+--------------------------------------------------------------------------------
+5.2 Participant Login & Secret Committee Gateway
+--------------------------------------------------------------------------------
+1. User clicks 'TEAM LOGIN' in navbar or navigates to http://localhost:3000/login.
+2. For Participants:
+   - Enters Team ID and Passkey (or Leader Email + Password).
+   - System authenticates credentials and opens the Participant Dashboard.
+3. For Director & Jury (Hidden Access):
+   - Double-clicks or double-taps the tiny 'v2.4.1' label in the bottom-right corner.
+   - The panel immediately unlocks the "COMMITTEE GATEWAY".
+   - Clicking 'LAUNCH JURY SCORING PAGE' routes to /jury.
+   - Entering passcode 'admin123' routes to /admin.
+   - Double-tapping 'v2.4.1' again returns to participant login.
+
+--------------------------------------------------------------------------------
+5.3 Multi-Round Submission Lifecycle
+--------------------------------------------------------------------------------
+1. Participant navigates to the 'PROJECT & MILESTONES' tab in their dashboard.
+2. In Round 1: Inputs Architecture Blueprint URL (Figma/PDF/Drive), Tech Stack,
+   and Problem Abstract.
+3. In Round 2: Inputs GitHub Repository URL and Prototype build link.
+4. In Round 3: Inputs Live Demo URL (e.g. Vercel, Netlify, Cloud Run).
+5. On clicking [SUBMIT ROUND ARTIFACTS], the team's record is updated and
+   immediately reflected in the Jury Evaluation Workbench.
+
+--------------------------------------------------------------------------------
+5.4 Director Command Operations
+--------------------------------------------------------------------------------
+1. Director accesses http://localhost:3000/admin.
+2. Enters passcode 'admin123' (or clicks demo login).
+3. Selects the active round (e.g. Round 1).
+4. Chooses round duration (e.g. 2 hours or custom 45 minutes).
+5. Clicks [START ROUND TIMER]:
+   - Global timer state turns ACTIVE.
+   - An automatic broadcast announcement is dispatched to all participants.
+   - Countdown clocks across all participant and jury screens begin ticking.
+6. When evaluations conclude, Director switches 'CAMPUS CERTIFICATES' to ENABLED.
+7. Director toggles 'LEADERBOARD' from DRAFT to LIVE to make standings public.
+
+--------------------------------------------------------------------------------
+5.5 Jury Evaluation Operations
+--------------------------------------------------------------------------------
+1. Evaluator accesses http://localhost:3000/jury.
+2. Selects their evaluator identity from the dropdown.
+3. Selects a team from the left workbench roster.
+4. Clicks the submission links to inspect code and architecture.
+5. Enters marks: Round 1 (out of 100), Round 2 (out of 100), Round 3 (out of 100).
+6. Enters qualitative written comments for team feedback.
+7. Clicks [COMMIT & SAVE EVALUATION]:
+   - Scores are recorded with the evaluator's name and timestamp.
+   - Leaderboard standings are automatically re-sorted.
+   - Data is persisted to LocalStorage.
+8. Evaluator switches to the 'STANDINGS SCOREBOARD' tab to review rankings.
+9. Clicks [DOWNLOAD EVALUATION CSV] to save the audit trail spreadsheet.
+
+--------------------------------------------------------------------------------
+5.6 Location-Based Certificate Verification & Canvas Generation
+--------------------------------------------------------------------------------
+1. Participant opens the Certificate Center from their dashboard.
+2. System checks if Director has unlocked certificate issuance:
+   - If locked: Displays warning banner that issuance is pending Director release.
+3. If enabled, participant clicks [VERIFY DEVICE GPS]:
+   - Device requests browser geolocation permissions.
+   - Latitude and longitude are processed against campus center (12.1922, 79.0833).
+   - If inside 2.5 km campus radius: status turns green (GEOFENCE VERIFIED).
+   - If outside: access is denied with a strict campus presence requirement message.
+4. Participant selects their name from the team member list.
+5. Clicks [GENERATE OFFICIAL CERTIFICATE]:
+   - HTML5 Canvas renders the high-res 1200x800 certificate with gold borders,
+     official convener signatures, and an anti-tamper hash.
+6. Participant clicks [DOWNLOAD PNG] to save the certificate image file.
+
+================================================================================
+6. DATA DICTIONARY & PERSISTENCE (LOCALSTORAGE SCHEMA)
+================================================================================
+All state is stored and retrieved seamlessly via browser LocalStorage:
+
+Key Name                    Type      Description
+--------------------------------------------------------------------------------
+ncore_teams                 Array     All registered teams, rosters, submissions,
+                                      scores, rankings, and jury feedback.
+ncore_current_round         Number    Current round index (1, 2, or 3).
+ncore_timer_seconds         Number    Seconds remaining on the round countdown.
+ncore_is_timer_running      Boolean   Whether the countdown timer is actively ticking.
+ncore_round_status          String    'STANDBY' | 'ACTIVE' | 'PAUSED' | 'COMPLETED'.
+ncore_current_user          Object    Active authenticated session ('admin' or 'team').
+ncore_announcements         Array     Director broadcasts with IDs, timestamps,
+                                      levels (INFO/WARNING/CRITICAL), and active states.
+ncore_schedule              Array     Schedule milestones with active slot toggles.
+ncore_leaderboard_published Boolean   Controls whether participants see live standings.
+ncore_cert_enabled          Boolean   Master switch enabling on-campus certificates.
+ncore_sound_enabled         Boolean   Audio synthesizer mute toggle state.
+
+Team Object Schema:
+{
+  teamId: "NCORE-T101",
+  teamName: "NeuralVanguard",
+  leaderName: "Kavin Raj",
+  leaderEmail: "kavin@example.com",
+  college: "Arunai Engineering College",
+  domain: "ai-ml",
+  domainName: "Artificial Intelligence & Machine Learning",
+  projectTitle: "NeuroGuardian: Vision-Based Industrial Safety Autopilot",
+  passkey: "NVG-9021-X",
+  members: [
+    { name: "Kavin Raj", role: "Team Leader (IV / CSE)", pin: "1234" },
+    { name: "Divya Prakash", role: "AI Research Lead (IV / CSE)", pin: "2345" },
+    { name: "Suresh Kumar", role: "Fullstack Architect (IV / CSE)", pin: "3456" },
+    { name: "Ananya Ramesh", role: "Edge ML Specialist (IV / CSE)", pin: "4567" }
+  ],
+  submission: {
+    github: "https://github.com/...",
+    demo: "https://...",
+    techStack: "PyTorch, YOLOv9, FastAPI, React 19",
+    abstract: "Autonomous edge vision system...",
+    round1Submitted: true,
+    round2Submitted: true,
+    round3Submitted: true
+  },
+  scores: {
+    round1: 94,
+    round2: 96,
+    round3: 98,
+    total: 288
+  },
+  rank: 1,
+  juryFeedback: "Outstanding latency metrics...",
+  evaluatedBy: "Mrs. V. Umadevi",
+  evaluatedAt: "09 Oct 2026, 04:15 PM"
+}
+
+================================================================================
+7. GEOFENCING MATHEMATICS & SECURITY MODEL
+================================================================================
+Location verification enforces strict physical presence using the Haversine
+formula:
+
+Campus Target Anchor:
+- Latitude:  12.1922° N
+- Longitude: 79.0833° E
+- Location:  Arunai Engineering College, Velu Nagar, Mathur, Tiruvannamalai - 606 603
+- Radius:    2,500 meters (2.5 km)
+
+Haversine Formula Implementation:
+  R = 6371000 meters (Mean Earth Radius)
+  dLat = (userLat - campusLat) * (PI / 180)
+  dLon = (userLon - campusLon) * (PI / 180)
+  a = sin²(dLat / 2) + cos(campusLat * PI / 180) * cos(userLat * PI / 180) * sin²(dLon / 2)
+  c = 2 * atan2(√a, √(1 - a))
+  distanceInMeters = R * c
+
+Security Rules:
+- If distanceInMeters <= 2500m: Verification passes.
+- If distanceInMeters > 2500m: Verification strictly rejected.
+- Coordinates are NEVER displayed in the participant certificate download menu.
+- Admin testing override is only accessible when authenticated as Director.
+
+================================================================================
+8. RUNNING & BUILDING THE APPLICATION
+================================================================================
+Environment Requirements:
+- Node.js: v18.0.0 or higher
+- npm: v9.0.0 or higher
+
+Development Server:
+  cd e:\hack
+  npm run dev -- --host 127.0.0.1 --port 3000
+  Access at: http://localhost:3000/
+
+Production Build:
+  cd e:\hack
+  npm run build
+  (Generates optimized bundle into dist/ within ~10 seconds)
+
+Production Preview:
+  npm run preview
+
+Direct URL Routes:
+- Landing Page:               http://localhost:3000/
+- Dedicated Login Page:       http://localhost:3000/login
+- Director Control Center:    http://localhost:3000/admin (Passcode: admin123)
+- Jury Scoring Portal:        http://localhost:3000/jury
+
+================================================================================
+                         END OF DOCUMENTATION
+================================================================================
