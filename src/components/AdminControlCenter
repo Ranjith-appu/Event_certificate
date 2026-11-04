@@ -1,0 +1,503 @@
+import React, { useState } from 'react';
+import { 
+  X, 
+  ShieldCheck, 
+  Play, 
+  Pause, 
+  SkipForward, 
+  Radio, 
+  Send, 
+  Users, 
+  FileText, 
+  CheckCircle, 
+  AlertTriangle, 
+  Trophy, 
+  Layers, 
+  ExternalLink,
+  RotateCcw,
+  Clock,
+  Lock,
+  Award
+} from 'lucide-react';
+import { useHackathon } from '../context/HackathonContext';
+import { playClickSound, playAlertSound, playSuccessSound } from '../utils/audio';
+
+const AdminControlCenter = () => {
+  const { 
+    currentRound, 
+    setRound, 
+    timerSeconds, 
+    isTimerRunning, 
+    roundStatus,
+    startRoundTimer,
+    pauseRoundTimer,
+    toggleTimer, 
+    resetRoundTimer,
+    teams, 
+    scoreTeam, 
+    broadcastAnnouncement, 
+    isLeaderboardPublished, 
+    toggleLeaderboardPublication,
+    isCertificateEnabled,
+    toggleCertificateIssuance,
+    setActiveModal,
+    navigateTo 
+  } = useHackathon();
+
+  // Announcement State
+  const [broadcastTitle, setBroadcastTitle] = useState('');
+  const [broadcastMessage, setBroadcastMessage] = useState('');
+  const [broadcastType, setBroadcastType] = useState('INFO');
+
+  // Scoring State
+  const [selectedTeamId, setSelectedTeamId] = useState(teams[0]?.teamId || '');
+  const [scoringRound, setScoringRound] = useState(currentRound);
+  const [scoreInput, setScoreInput] = useState('');
+
+  const selectedTeam = teams.find(t => t.teamId === selectedTeamId) || teams[0];
+
+  const totalParticipants = teams.reduce((acc, t) => acc + (t.members?.length || 1), 0);
+  const totalSubmissions = teams.filter(t => t.submission?.round1Submitted || t.submission?.github).length;
+  const pendingEvals = teams.filter(t => (t.scores?.round1 || 0) === 0).length;
+
+  const formatTimer = (seconds) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleBroadcast = (e) => {
+    e.preventDefault();
+    if (!broadcastTitle || !broadcastMessage) return;
+    broadcastAnnouncement({
+      title: broadcastTitle.toUpperCase(),
+      message: broadcastMessage,
+      type: broadcastType
+    });
+    setBroadcastTitle('');
+    setBroadcastMessage('');
+    playAlertSound();
+  };
+
+  const handleScoreSubmit = (e) => {
+    e.preventDefault();
+    if (!scoreInput) return;
+    scoreTeam(selectedTeamId, scoringRound, scoreInput);
+    setScoreInput('');
+    playSuccessSound();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+      <div className="relative w-full max-w-5xl bg-white border-2 border-amber-400 rounded-2xl p-6 sm:p-8 my-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="hud-corner-tl !border-amber-400"></div>
+        <div className="hud-corner-tr !border-amber-400"></div>
+        <div className="hud-corner-bl !border-amber-400"></div>
+        <div className="hud-corner-br !border-amber-400"></div>
+
+        {/* Close Button */}
+        <button
+          onClick={() => {
+            playClickSound();
+            setActiveModal(null);
+          }}
+          className="absolute top-4 right-4 p-2 rounded-lg text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-200 gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-6 h-6 text-amber-600" />
+              <h2 className="text-xl sm:text-2xl font-black font-tech text-slate-900 tracking-tight">
+                NCORE HACKATHON CONTROL CENTER
+              </h2>
+            </div>
+            <p className="text-xs text-amber-800 font-mono mt-0.5 font-semibold">
+              Live Command, Timing Trigger & Broadcast Telemetry
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                playClickSound();
+                setActiveModal(null);
+                navigateTo('/jury');
+              }}
+              className="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all border border-sky-300 bg-sky-50 text-sky-800 hover:bg-sky-100 flex items-center gap-1.5 shadow-xs cursor-pointer"
+            >
+              <Award className="w-3.5 h-3.5 text-sky-600" />
+              <span>⚖️ JURY PORTAL</span>
+            </button>
+
+            <button
+              onClick={toggleCertificateIssuance}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all border flex items-center gap-1.5 ${
+                isCertificateEnabled 
+                  ? 'bg-emerald-100 text-emerald-800 border-emerald-400 shadow-xs' 
+                  : 'bg-rose-100 text-rose-800 border-rose-400 hover:bg-rose-200'
+              }`}
+            >
+              <Award className="w-3.5 h-3.5" />
+              <span>{isCertificateEnabled ? 'CERTIFICATES: ENABLED' : 'CERTIFICATES: LOCKED'}</span>
+            </button>
+
+            <button
+              onClick={toggleLeaderboardPublication}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all border ${
+                isLeaderboardPublished 
+                  ? 'bg-emerald-100 text-emerald-800 border-emerald-400 shadow-xs' 
+                  : 'bg-amber-100 text-amber-800 border-amber-400'
+              }`}
+            >
+              {isLeaderboardPublished ? 'LEADERBOARD: LIVE' : 'LEADERBOARD: DRAFT'}
+            </button>
+          </div>
+        </div>
+
+        {/* 6 Metric Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 my-6">
+          <div className="p-3 rounded-xl bg-slate-50 border border-amber-200 text-center shadow-xs">
+            <span className="text-[10px] font-mono text-slate-500 block font-semibold">ACTIVE ROUND</span>
+            <span className="text-lg font-black font-tech text-amber-600">ROUND 0{currentRound}</span>
+          </div>
+
+          <div className="p-3 rounded-xl bg-slate-50 border border-sky-200 text-center shadow-xs">
+            <span className="text-[10px] font-mono text-slate-500 block font-semibold">TOTAL TEAMS</span>
+            <span className="text-lg font-black font-tech text-sky-700">{teams.length}</span>
+          </div>
+
+          <div className="p-3 rounded-xl bg-slate-50 border border-sky-200 text-center shadow-xs">
+            <span className="text-[10px] font-mono text-slate-500 block font-semibold">PARTICIPANTS</span>
+            <span className="text-lg font-black font-tech text-sky-700">{totalParticipants}</span>
+          </div>
+
+          <div className="p-3 rounded-xl bg-slate-50 border border-emerald-200 text-center shadow-xs">
+            <span className="text-[10px] font-mono text-slate-500 block font-semibold">SUBMISSIONS</span>
+            <span className="text-lg font-black font-tech text-emerald-700">{totalSubmissions}</span>
+          </div>
+
+          <div className="p-3 rounded-xl bg-slate-50 border border-purple-200 text-center shadow-xs">
+            <span className="text-[10px] font-mono text-slate-500 block font-semibold">PENDING EVALS</span>
+            <span className="text-lg font-black font-tech text-purple-700">{pendingEvals}</span>
+          </div>
+
+          <div className="p-3 rounded-xl bg-slate-50 border border-rose-200 text-center shadow-xs">
+            <span className="text-[10px] font-mono text-slate-500 block font-semibold">CERTIFICATES</span>
+            <span className={`text-lg font-black font-tech ${isCertificateEnabled ? 'text-emerald-700' : 'text-rose-700'}`}>
+              {isCertificateEnabled ? 'ACTIVE' : 'LOCKED'}
+            </span>
+          </div>
+        </div>
+
+        {/* Certificate Master Control Card */}
+        <div className={`p-4 rounded-xl border mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
+          isCertificateEnabled ? 'border-emerald-400 bg-emerald-50/70' : 'border-amber-300 bg-amber-50/60'
+        }`}>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Award className={`w-4 h-4 ${isCertificateEnabled ? 'text-emerald-600' : 'text-amber-600'}`} />
+              <span className="text-xs font-mono font-bold text-slate-900 uppercase tracking-wider">
+                CAMPUS CERTIFICATE GENERATION SYSTEM (12.1922, 79.0833)
+              </span>
+              <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-bold ${
+                isCertificateEnabled ? 'bg-white border-emerald-400 text-emerald-800' : 'bg-white border-rose-400 text-rose-800'
+              }`}>
+                {isCertificateEnabled ? 'ISSUANCE ACTIVE' : 'ISSUANCE DISABLED'}
+              </span>
+            </div>
+            <p className="text-xs text-slate-600 font-sans">
+              {isCertificateEnabled 
+                ? 'Certificates are currently unlocked. Participants within Arunai Engineering College geofence can generate authenticated e-certificates.' 
+                : 'Certificate generation is currently locked by Admin. Participants will see an access restriction notice until this switch is toggled.'}
+            </p>
+          </div>
+
+          <button
+            onClick={toggleCertificateIssuance}
+            className={`px-5 py-2.5 rounded-xl font-mono text-xs font-bold transition-all border flex items-center gap-2 shrink-0 cursor-pointer ${
+              isCertificateEnabled
+                ? 'bg-rose-100 text-rose-800 border-rose-400 hover:bg-rose-200'
+                : 'bg-emerald-600 text-white border-emerald-500 hover:bg-emerald-500 shadow-sm font-extrabold'
+            }`}
+          >
+            <Award className="w-4 h-4" />
+            <span>{isCertificateEnabled ? 'LOCK CERTIFICATE ISSUANCE' : 'ENABLE CERTIFICATE GENERATION'}</span>
+          </button>
+        </div>
+
+        {/* Live Control Panel & Broadcast Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Left Column: Master Timing & Live Event Control */}
+          <div className="lg:col-span-6 p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4 shadow-xs">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+              <div className="flex items-center gap-2">
+                <Radio className="w-4 h-4 text-sky-600 animate-pulse" />
+                <h3 className="text-xs font-mono font-bold text-slate-900 uppercase tracking-wider">
+                  MASTER ROUND & COUNTDOWN CONTROL
+                </h3>
+              </div>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-100 border border-sky-300 text-sky-800 font-bold">
+                ADMIN COMMAND
+              </span>
+            </div>
+
+            {/* Current State Indicator Box */}
+            <div className="p-3.5 rounded-xl bg-white border border-slate-200 flex items-center justify-between shadow-xs">
+              <div>
+                <span className="text-[10px] font-mono text-slate-500 block font-semibold">CURRENT ROUND STATUS</span>
+                <div className="text-sm font-bold font-tech text-slate-900 flex items-center gap-1.5 mt-0.5">
+                  {isTimerRunning ? (
+                    <span className="text-emerald-700 flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      ROUND 0{currentRound} COUNTDOWN ACTIVE
+                    </span>
+                  ) : roundStatus === 'PAUSED' ? (
+                    <span className="text-amber-700">ROUND 0{currentRound} TIMER PAUSED</span>
+                  ) : (
+                    <span className="text-slate-500 flex items-center gap-1">
+                      <Lock className="w-3 h-3 text-slate-400" />
+                      ROUND 0{currentRound} STANDBY (NOT STARTED)
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="text-right">
+                <div className="text-2xl font-black font-tech text-sky-800">
+                  {formatTimer(timerSeconds)}
+                </div>
+                <div className="text-[9px] font-mono text-slate-400 font-semibold">REMAINING TIME</div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {/* Set Active Round buttons */}
+              <div>
+                <label className="block text-[11px] font-mono text-slate-700 font-semibold mb-1">SET ROUND NUMBER</label>
+                <div className="grid grid-cols-3 gap-2 font-mono text-xs">
+                  {[1, 2, 3].map(num => (
+                    <button
+                      key={num}
+                      onClick={() => setRound(num)}
+                      className={`py-2 rounded-lg font-bold border transition-all cursor-pointer ${
+                        currentRound === num
+                          ? 'bg-sky-600 text-white border-sky-600 shadow-xs'
+                          : 'bg-white text-slate-700 border-slate-200 hover:border-sky-400'
+                      }`}
+                    >
+                      ROUND 0{num}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* PRIMARY ADMIN START / PAUSE BUTTON */}
+              <div>
+                <label className="block text-[11px] font-mono text-slate-700 font-semibold mb-1">LIVE COUNTDOWN COMMENCEMENT</label>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={toggleTimer}
+                    className={`flex-1 py-3 rounded-xl text-xs font-mono font-bold flex items-center justify-center gap-2 border transition-all cursor-pointer ${
+                      isTimerRunning 
+                        ? 'bg-amber-100 text-amber-800 border-amber-400 hover:bg-amber-200' 
+                        : 'bg-emerald-600 text-white border-emerald-500 hover:bg-emerald-500 font-extrabold text-sm shadow-sm'
+                    }`}
+                  >
+                    {isTimerRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 text-white" />}
+                    <span>
+                      {isTimerRunning ? 'PAUSE ROUND COUNTDOWN' : `START ROUND 0${currentRound} COUNTDOWN`}
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={resetRoundTimer}
+                    title="Reset timer to round duration"
+                    className="p-3 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 transition-colors shadow-xs cursor-pointer"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </button>
+                </div>
+                <p className="text-[10px] font-mono text-slate-500 mt-1">
+                  * Timer on the landing page & participant portal only ticks down when the director clicks Start above.
+                </p>
+              </div>
+            </div>
+
+            {/* Broadcast Terminal Form */}
+            <div className="pt-3 border-t border-slate-200 space-y-2">
+              <h4 className="text-xs font-mono font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                <Send className="w-3.5 h-3.5 text-sky-600" />
+                <span>BROADCAST LIVE ALERT TO ALL TEAMS</span>
+              </h4>
+
+              <form onSubmit={handleBroadcast} className="space-y-2 text-xs">
+                <input
+                  type="text"
+                  required
+                  placeholder="Alert Title (e.g. ROUND 1 MILESTONE EXTENDED)"
+                  value={broadcastTitle}
+                  onChange={(e) => setBroadcastTitle(e.target.value)}
+                  className="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 font-mono uppercase focus:outline-none focus:border-amber-500"
+                />
+
+                <textarea
+                  rows={2}
+                  required
+                  placeholder="Detailed instructions or venue update..."
+                  value={broadcastMessage}
+                  onChange={(e) => setBroadcastMessage(e.target.value)}
+                  className="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-900 focus:outline-none focus:border-amber-500 resize-none font-sans"
+                />
+
+                <div className="flex items-center justify-between pt-1">
+                  <div className="flex items-center gap-2">
+                    <label className="text-[10px] font-mono text-slate-600 font-semibold">TYPE:</label>
+                    <select
+                      value={broadcastType}
+                      onChange={(e) => setBroadcastType(e.target.value)}
+                      className="bg-white text-xs text-sky-800 border border-slate-300 rounded px-2 py-1 font-semibold"
+                    >
+                      <option value="INFO">Information</option>
+                      <option value="CRITICAL">Critical Alert</option>
+                    </select>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="px-4 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold font-mono text-xs flex items-center gap-1 shadow-xs cursor-pointer"
+                  >
+                    <Send className="w-3 h-3" />
+                    <span>TRANSMIT ALERT</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          {/* Right Column: Submission Evaluation & Scoring Panel */}
+          <div className="lg:col-span-6 p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4 shadow-xs">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+              <h3 className="text-xs font-mono font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                <Trophy className="w-4 h-4 text-amber-600" />
+                <span>TEAM SUBMISSION EVALUATOR</span>
+              </h3>
+              <select
+                value={selectedTeamId}
+                onChange={(e) => setSelectedTeamId(e.target.value)}
+                className="bg-white text-xs text-sky-800 border border-slate-300 rounded-lg px-2.5 py-1 font-mono focus:outline-none font-bold"
+              >
+                {teams.map(t => (
+                  <option key={t.teamId} value={t.teamId}>
+                    {t.teamName} ({t.teamId})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {selectedTeam && (
+              <div className="space-y-3 text-xs">
+                {/* Team Details Preview */}
+                <div className="p-3 rounded-lg bg-white border border-slate-200 space-y-1 shadow-xs">
+                  <div className="flex justify-between">
+                    <span className="font-bold text-slate-900 font-tech">{selectedTeam.teamName}</span>
+                    <span className="text-sky-700 font-mono font-bold">{selectedTeam.teamId}</span>
+                  </div>
+                  <p className="text-slate-600 text-[11px]">{selectedTeam.college}</p>
+                  <p className="text-sky-800 text-[11px] font-mono font-medium">{selectedTeam.projectTitle}</p>
+                </div>
+
+                {/* Submissions Links */}
+                <div className="grid grid-cols-2 gap-2">
+                  <a
+                    href={selectedTeam.submission?.github || '#'}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-2 rounded bg-white border border-slate-200 hover:border-sky-400 text-slate-700 hover:text-sky-700 flex items-center justify-between shadow-xs"
+                  >
+                    <span>GitHub Repo</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                  <a
+                    href={selectedTeam.submission?.demo || '#'}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-2 rounded bg-white border border-slate-200 hover:border-sky-400 text-slate-700 hover:text-sky-700 flex items-center justify-between shadow-xs"
+                  >
+                    <span>Live Demo / App</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+
+                {/* Existing Scores */}
+                <div className="grid grid-cols-4 gap-2 text-center font-mono">
+                  <div className="p-2 rounded bg-white border border-slate-200 shadow-xs">
+                    <span className="text-[10px] text-slate-500 block font-semibold">R1</span>
+                    <span className="font-bold text-slate-900">{selectedTeam.scores?.round1 || 0}</span>
+                  </div>
+                  <div className="p-2 rounded bg-white border border-slate-200 shadow-xs">
+                    <span className="text-[10px] text-slate-500 block font-semibold">R2</span>
+                    <span className="font-bold text-slate-900">{selectedTeam.scores?.round2 || 0}</span>
+                  </div>
+                  <div className="p-2 rounded bg-white border border-slate-200 shadow-xs">
+                    <span className="text-[10px] text-slate-500 block font-semibold">R3</span>
+                    <span className="font-bold text-slate-900">{selectedTeam.scores?.round3 || 0}</span>
+                  </div>
+                  <div className="p-2 rounded bg-white border border-sky-300 shadow-xs">
+                    <span className="text-[10px] text-sky-700 block font-bold">TOTAL</span>
+                    <span className="font-bold text-sky-800">{selectedTeam.scores?.total || 0}</span>
+                  </div>
+                </div>
+
+                {/* Score Input Form */}
+                <form onSubmit={handleScoreSubmit} className="pt-2 space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10px] font-mono text-slate-700 font-semibold mb-1">SCORE FOR ROUND:</label>
+                      <select
+                        value={scoringRound}
+                        onChange={(e) => setScoringRound(parseInt(e.target.value, 10))}
+                        className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg p-2 font-mono text-xs focus:border-sky-500"
+                      >
+                        <option value={1}>Round 01 (Architecture)</option>
+                        <option value={2}>Round 02 (PPT + Prototype)</option>
+                        <option value={3}>Round 03 (Final Pitch)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-mono text-slate-700 font-semibold mb-1">MARKS (OUT OF 100):</label>
+                      <input
+                        type="number"
+                        min={0}
+                        max={100}
+                        required
+                        placeholder="e.g. 95"
+                        value={scoreInput}
+                        onChange={(e) => setScoreInput(e.target.value)}
+                        className="w-full bg-white text-slate-900 border border-slate-300 rounded-lg p-2 font-mono text-xs focus:border-sky-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full py-2.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-tech font-bold text-xs tracking-wider transition-all shadow-sm cursor-pointer"
+                  >
+                    RECORD JURY EVALUATION
+                  </button>
+                </form>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminControlCenter;
