@@ -6,7 +6,7 @@
 
 ---
 
-## 📌 Overview
+##  Overview
 
 **NCORE 2026 – 12HRS Hackathon Platform** is an enterprise-grade, real-time web application engineered to manage and power an elite national-level hackathon. 
 
@@ -14,17 +14,17 @@ Built with **React 18**, **Vite 6**, and **Tailwind CSS**, the platform delivers
 
 ---
 
-## 🚀 Key Features
+##  Key Features
 
-### 1. 🌐 Public Landing Page (`/`)
+### 1.  Public Landing Page (`/`)
 - **Futuristic Light Theme**: Clean `slate-50` background with cobalt accents, HUD tech borders, and crisp typography.
 - **Challenge Domains**: 6 strategic technology tracks:
-  - 🧠 Artificial Intelligence & Machine Learning
-  - ⛓️ Cybersecurity & Blockchain
-  - 🏙️ Smart Cities, IoT & Intelligent Systems
-  - 💳 FinTech & Digital Trust
-  - 🌱 Sustainable & Green Computing
-  - 💡 Open Innovation
+  - Artificial Intelligence & Machine Learning
+  - Cybersecurity & Blockchain
+  - Smart Cities, IoT & Intelligent Systems
+  - FinTech & Digital Trust
+  - Sustainable & Green Computing
+  - Open Innovation
 - **Motivational Honors**: Highlights intellectual distinction, incubation mentorship, and peer-reviewed journal publication opportunities (no commercial prize clutter).
 - **Interactive Event Schedule**: Chronological 12-hour roadmap from morning reporting to evening awards.
 - **Rules & Conveners**: Guidelines, code integrity standards, and profiles of faculty leadership and distinguished jury members.
@@ -32,7 +32,7 @@ Built with **React 18**, **Vite 6**, and **Tailwind CSS**, the platform delivers
 
 ---
 
-### 2. 👥 Participant Portal & Team Workspace (`/login`)
+### 2. Participant Portal & Team Workspace (`/login`)
 - **4-Member Team Registration**: Register team leaders and up to 3 additional members (total 4 members per team).
 - **Auto-Generated Credentials**: Generates a sequential Team ID (e.g., `NCORE-T101`) and cryptographically randomized passkey (e.g., `NVG-9021-X`).
 - **Milestone Submission Terminal**:
@@ -45,7 +45,7 @@ Built with **React 18**, **Vite 6**, and **Tailwind CSS**, the platform delivers
 
 ---
 
-### 3. 📍 Geofenced Certificate Center
+### 3. Geofenced Certificate Center
 - **On-Campus Physical Verification**: Uses the browser's Geolocation API (Haversine distance calculation) to verify physical presence within **Arunai Engineering College campus** (2.5 km radius around `12.1922° N, 79.0833° E`).
 - **Privacy First**: Technical coordinates are validated in the background and omitted from the participant UI.
 - **High-DPI HTML5 Canvas Rendering**: Generates a downloadable, high-resolution (1200×800) official certificate:
@@ -58,7 +58,7 @@ Built with **React 18**, **Vite 6**, and **Tailwind CSS**, the platform delivers
 
 ---
 
-### 4. 🛡️ Director / Admin Command Center (`/admin`)
+### 4. Director / Admin Command Center (`/admin`)
 - **Passcode Protection**: Secured via director authorization passcode (`admin123`) or one-click demo login.
 - **Synchronized Round Telemetry**:
   - Activate **Round 1**, **Round 2**, or **Round 3**.
@@ -75,7 +75,7 @@ Built with **React 18**, **Vite 6**, and **Tailwind CSS**, the platform delivers
 
 ---
 
-### 5. ⚖️ Jury Evaluation & Scoring Portal (`/jury`)
+### 5. Jury Evaluation & Scoring Portal (`/jury`)
 - **Password-Protected Gate**: Secured via jury password (`jury123`) or one-click demo login.
 - **Evaluator Profile Switcher**: Evaluate under distinct juror identities:
   - *Mrs. V. Umadevi* (Convener & HOD UG, CSE)
@@ -94,7 +94,7 @@ Built with **React 18**, **Vite 6**, and **Tailwind CSS**, the platform delivers
 
 ---
 
-### 6. 🔐 Secret Committee Gateway (Double-Tap Unlock)
+### 6.Secret Committee Gateway (Double-Tap Unlock)
 To maintain a clean public landing page with zero administrative clutter:
 - The Director and Jury portals are hidden from public view.
 - **Access Method**: Open the **Team Login** modal or visit `/login`.
@@ -103,7 +103,7 @@ To maintain a clean public landing page with zero administrative clutter:
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 | Domain | Technology / Tool | Purpose |
 |---|---|---|
@@ -118,7 +118,7 @@ To maintain a clean public landing page with zero administrative clutter:
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 e:/hack/
@@ -163,7 +163,7 @@ e:/hack/
 
 ---
 
-## 🔑 Default Credentials Reference
+##  Default Credentials Reference
 
 | Role | Access URL | Username / Identity | Default Password / Passcode |
 |---|---|---|---|
@@ -172,11 +172,11 @@ e:/hack/
 | **Demo Team 1** | `/login` | `NCORE-T101` | Passkey: `NVG-9021-X` *(NeuralVanguard)* |
 | **Demo Team 2** | `/login` | `NCORE-T102` | Passkey: `CGD-7814-K` *(CipherGrid)* |
 
-> 💡 **Tip:** On the `/login` panel, double-tap the `v2.4.1` version badge in the bottom-right corner to toggle the **Committee Gateway** directly.
+> **Tip:** On the `/login` panel, double-tap the `v2.4.1` version badge in the bottom-right corner to toggle the **Committee Gateway** directly.
 
 ---
 
-## ⚡ Getting Started
+## Getting Started
 
 ### Prerequisites
 - **Node.js**: v18.0.0 or higher
@@ -207,7 +207,7 @@ e:/hack/
 
 ---
 
-## 🏗️ Production Build
+##  Production Build
 
 To build the optimized production bundle:
 
@@ -220,21 +220,3 @@ This compiles optimized assets into the `dist/` directory in under 10 seconds. Y
 ```bash
 npm run preview
 ```
-
----
-
-## 📞 Event & Organization Contacts
-
-- **Institution**: Arunai Engineering College (An Autonomous Institution)  
-  *Velu Nagar, Mathur, Tiruvannamalai – 606 603, Tamil Nadu, India*
-- **Presented by**: **POINTERS** – Student Association & Dept. of Computer Science and Engineering
-- **Helpline Numbers**: `+91 87789 70224` / `+91 91765 90993`
-- **Official Email**: `pointers.csedept@gmail.com`
-- **Web Portal**: [https://pointers-2026.vercel.app](https://pointers-2026.vercel.app)
-- **Instagram**: [@pointers_cse](https://instagram.com/pointers_cse)
-
----
-
-## 📄 License & Attribution
-
-Developed for **NCORE 2026**. All rights reserved by **POINTERS** and the **Department of Computer Science and Engineering, Arunai Engineering College**.
